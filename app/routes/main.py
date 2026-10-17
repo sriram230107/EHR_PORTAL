@@ -389,6 +389,9 @@ def view_patient_profile(patient_id):
         )
 
 
+
+
+
 @main_bp.route('/patients/<int:patient_id>/schemes')
 @login_required
 @role_required([
@@ -397,49 +400,109 @@ def view_patient_profile(patient_id):
     'Hospital System Administrator'
 ])
 def check_patient_schemes(patient_id):
-
-    patient = Patient.query.get_or_404(
-        patient_id
-    )
+    patient = Patient.query.get_or_404(patient_id)
 
     if not patient.is_active:
-
         abort(
             403,
-            description=(
-                "Cannot check schemes for "
-                "an inactive patient record."
-            )
+            description="Cannot check schemes for an inactive patient record."
         )
-
-    # Annual income is deliberately optional
-    # during normal patient registration/editing.
-    #
-    # It becomes mandatory only when the user
-    # attempts to check government schemes.
 
     if patient.annual_income is None:
-
         flash(
-            "Annual income is required to check "
-            "government schemes. Please update "
-            "the patient's profile first.",
+            "Annual income is required to check government schemes. "
+            "Please update the patient's profile first.",
             "warning"
         )
-
         return redirect(
-            url_for(
-                'main.edit_patient',
-                patient_id=patient.id
-            )
+            url_for('main.edit_patient', patient_id=patient.id)
         )
 
-    # Scheme eligibility page will be connected
-    # after the scheme module is implemented.
+    age = patient.age
+    income = float(patient.annual_income)
+
+    schemes = [
+        {
+            "name": "Chief Minister's Comprehensive Health Insurance Scheme (CMCHIS)",
+            "description": (
+                "Tamil Nadu government health insurance scheme "
+                "for eligible families."
+            ),
+            "benefit": "Healthcare coverage at participating hospitals.",
+            "max_income": 120000,
+            "status": (
+                "Potential match"
+                if income < 120000
+                else "Income criterion not matched"
+            ),
+            "reason": (
+                "Income is below the published ₹1,20,000 annual threshold. "
+                "Tamil Nadu residency, documents and current official "
+                "eligibility must still be verified."
+                if income < 120000
+                else
+                "Income is at or above the published general-category "
+                "threshold. Verify current requirements with the official scheme."
+            ),
+            "official_url": "https://www.cmchistn.com/eligibility"
+        },
+        {
+            "name": "Ayushman Bharat PM-JAY",
+            "description": (
+                "Government health assurance scheme for eligible beneficiaries."
+            ),
+            "benefit": "Hospitalisation coverage under applicable scheme rules.",
+            "max_income": None,
+            "status": (
+                "Potential age-based match"
+                if age >= 70
+                else "Needs official verification"
+            ),
+            "reason": (
+                "People aged 70 and above have a dedicated PM-JAY "
+                "senior-citizen coverage pathway, irrespective of income. "
+                "Verify enrolment and card requirements."
+                if age >= 70
+                else
+                "Age and income alone cannot establish general PM-JAY "
+                "eligibility. Check the official beneficiary system."
+            ),
+            "official_url": (
+                "https://www.pmjay.gov.in/"
+            )
+        },
+        {
+            "name": "Rashtriya Bal Swasthya Karyakram (RBSK)",
+            "description": (
+                "Child health screening and early intervention programme."
+            ),
+            "benefit": (
+                "Screening and referral for selected childhood health conditions."
+            ),
+            "max_income": None,
+            "status": (
+                "Age-group match"
+                if age <= 18
+                else "Outside target age group"
+            ),
+            "reason": (
+                "The patient's age is within the programme's 0–18-year "
+                "target group. Actual service access depends on the programme "
+                "pathway and local implementation."
+                if age <= 18
+                else
+                "This programme targets children from birth to 18 years."
+            ),
+            "official_url": "https://rbsk.mohfw.gov.in/rbsk/"
+        }
+    ]
+
     return render_template(
         'schemes/check.html',
-        patient=patient
+        patient=patient,
+        eligible_schemes=schemes
     )
+
 
 
 @main_bp.route('/patients/<int:patient_id>/edit', methods=['GET', 'POST'])

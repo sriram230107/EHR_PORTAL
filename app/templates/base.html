@@ -52,16 +52,16 @@
                     <a href="{{ url_for('admin.admin_dashboard') }}" class="nav-link {% if request.path == url_for('admin.admin_dashboard') %}active{% endif %}">
                         <i class="bi bi-speedometer2"></i> Dashboard
                     </a>
-                    <a href="{{ url_for('admin.manage_doctors') }}" class="nav-link {% if request.path == url_for('admin.manage_doctors') %}active{% endif %}">
+                    <a href="{{ url_for('admin.manage_doctors') }}" class="nav-link {% if request.endpoint == 'admin.manage_users' and request.args.get('role') == 'Doctor' %}active{% endif %}">
                         <i class="bi bi-heart-pulse"></i> Doctors List
                     </a>
-                    <a href="{{ url_for('admin.manage_receptionists') }}" class="nav-link {% if request.path == url_for('admin.manage_receptionists') %}active{% endif %}">
+                    <a href="{{ url_for('admin.manage_receptionists') }}" class="nav-link {% if request.endpoint == 'admin.manage_users' and request.args.get('role') == 'Receptionist' %}active{% endif %}">
                         <i class="bi bi-person-workspace"></i> Receptionists List
                     </a>
-                    <a href="{{ url_for('admin.manage_patients') }}" class="nav-link {% if request.path == url_for('admin.manage_patients') %}active{% endif %}">
+                    <a href="{{ url_for('admin.manage_patients') }}" class="nav-link {% if request.endpoint == 'main.search_patients' %}active{% endif %}">
                         <i class="bi bi-people"></i> Manage Patients
                     </a>
-                    <a href="{{ url_for('admin.manage_appointments') }}" class="nav-link {% if request.path == url_for('admin.manage_appointments') %}active{% endif %}">
+                    <a href="{{ url_for('admin.manage_appointments') }}" class="nav-link {% if request.endpoint in ['admin.manage_appointments', 'main.manage_appointments'] %}active{% endif %}">
                         <i class="bi bi-calendar-event"></i> Appointments
                     </a>
                     <a href="{{ url_for('admin.view_reports') }}" class="nav-link {% if request.path == url_for('admin.view_reports') %}active{% endif %}">
@@ -73,7 +73,7 @@
                     <a href="{{ url_for('doctor.doctor_dashboard') }}" class="nav-link {% if request.path == url_for('doctor.doctor_dashboard') %}active{% endif %}">
                         <i class="bi bi-speedometer2"></i> Dashboard
                     </a>
-                    <a href="{{ url_for('doctor.search_patients') }}" class="nav-link {% if request.path.startswith('/doctor/patient') %}active{% endif %}">
+                    <a href="{{ url_for('doctor.search_patients') }}" class="nav-link {% if request.endpoint in ['doctor.search_patients', 'main.search_patients'] %}active{% endif %}">
                         <i class="bi bi-search"></i> Search Patients
                     </a>
                     
@@ -82,7 +82,7 @@
                     <a href="{{ url_for('receptionist.receptionist_dashboard') }}" class="nav-link {% if request.path == url_for('receptionist.receptionist_dashboard') %}active{% endif %}">
                         <i class="bi bi-speedometer2"></i> Dashboard
                     </a>
-                    <a href="{{ url_for('receptionist.register_patient') }}" class="nav-link {% if request.path == url_for('receptionist.register_patient') %}active{% endif %}">
+                    <a href="{{ url_for('receptionist.register_patient') }}" class="nav-link {% if request.path == url_for('receptionist.register_patient') or request.path == url_for('main.register_patient') %}active{% endif %}">
                         <i class="bi bi-person-plus-fill"></i> Register Patient
                     </a>
                     <a href="{{ url_for('receptionist.manage_appointments') }}" class="nav-link {% if request.path == url_for('receptionist.manage_appointments') %}active{% endif %}">
